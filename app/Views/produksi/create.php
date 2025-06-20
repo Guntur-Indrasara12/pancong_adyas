@@ -24,11 +24,11 @@
                     <hr>
                     <div class="form-row">
                         <div class="col-md-3 mb-3">
-                            <label for="tepung">Tepung Terigu (gram)</label>
+                            <label for="tepung">Tepung Terigu (Kg)</label>
                             <input type="number" step="any" class="form-control" name="tepung" id="tepung" placeholder="Contoh: 1000" value="<?= old('tepung'); ?>" required>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label for="gula">Gula (gram)</label>
+                            <label for="gula">Gula (Kg)</label>
                             <input type="number" step="any" class="form-control" name="gula" id="gula" placeholder="Contoh: 175" value="<?= old('gula'); ?>" required>
                         </div>
                         <div class="col-md-3 mb-3">

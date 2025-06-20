@@ -73,7 +73,7 @@ class produksi extends BaseController
         $db->transStart();
 
         try {
-            $resepDasar = ['Tepung Terigu' => 1000];
+            $resepDasar = ['Tepung Terigu' => 1];
             $hasilPerResep = 25;
             $varianPerGram = 25;
 
@@ -88,6 +88,7 @@ class produksi extends BaseController
             $totalModalProduksi = 0;
             foreach ($bahanUtamaDigunakan as $nama => $jumlah) {
                 if (!isset($daftarHargaBahan[$nama])) throw new \Exception("Master bahan '$nama' tidak ditemukan.");
+
                 $totalModalProduksi += $daftarHargaBahan[$nama] * $jumlah;
             }
 
@@ -100,7 +101,8 @@ class produksi extends BaseController
                     $jumlahVarian = $variants['jumlah'][$index] ?? 0;
                     if (!empty($namaVarian) && $jumlahVarian > 0) {
                         if (!isset($daftarHargaBahan[$namaVarian])) throw new \Exception("Master bahan varian '$namaVarian' tidak ditemukan.");
-                        $totalModalProduksi += $daftarHargaBahan[$namaVarian] * $jumlahVarian;
+
+                        $totalModalProduksi += ($daftarHargaBahan[$namaVarian] / 1000) * $jumlahVarian;
 
                         $jumlahPcs = floor($jumlahVarian / $varianPerGram);
                         $totalJumlahVarianPcs += $jumlahPcs;
@@ -110,7 +112,7 @@ class produksi extends BaseController
                 }
             }
 
-            $faktorPengali = $postData['tepung'] / $resepDasar['Tepung Terigu'];
+            $faktorPengali = ($postData['tepung']) / $resepDasar['Tepung Terigu'];
             $totalOutput = $faktorPengali * $hasilPerResep;
 
             if ($totalJumlahVarianPcs > $totalOutput) {
@@ -151,7 +153,7 @@ class produksi extends BaseController
                 throw new \Exception('Gagal melakukan transaksi database.');
             }
 
-            session()->setFlashdata('success', "Produksi berhasil dengan total modal Rp " . number_format($totalModalProduksi));
+            session()->setFlashdata('success', "Produksi berhasil dengan total modal Rp " . number_format($totalModalProduksi, 0, ',', '.'));
             return redirect()->to('/produksi');
         } catch (\Exception $e) {
             session()->setFlashdata('error', $e->getMessage());

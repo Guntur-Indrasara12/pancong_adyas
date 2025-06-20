@@ -42,3 +42,26 @@ $routes->get('/user/delete/(:num)', 'user::delete/$1');
 $routes->get('/produksi', 'produksi::index');
 $routes->get('/produksi/create', 'produksi::create');
 $routes->post('/produksi/process', 'produksi::process');
+
+
+//produk
+$routes->get('/produk', 'Produk::index');
+$routes->get('/produk/create', 'Produk::create');
+$routes->get('/produk/edit/(:num)', 'Produk::edit/$1');
+$routes->post('/produk/process', 'Produk::process');
+$routes->post('/produk/edit/process', 'Produk::edit_process');
+$routes->get('/produk/delete/(:num)', 'Produk::delete/$1');
+
+//bahan baku
+$routes->get('/bahanbaku', 'BahanBaku::index');
+$routes->get('/bahanbaku/create', 'BahanBaku::create');
+$routes->get('/bahanbaku/edit/(:num)', 'BahanBaku::edit/$1');
+$routes->post('/bahanbaku/process', 'BahanBaku::process');
+$routes->post('/bahanbaku/edit/process', 'BahanBaku::edit_process');
+$routes->get('/bahanbaku/delete/(:num)', 'BahanBaku::delete/$1');
+
+
+//pemjualan
+$routes->get('/penjualan', 'Penjualan::index');
+$routes->get('/penjualan/create', 'Penjualan::create');
+$routes->post('/penjualan/process', 'Penjualan::process');

@@ -31,4 +31,14 @@ class produksimodel extends Model
             ->orderBy('log_produksi.tgl_produksi', 'ASC')
             ->get()->getResultArray();
     }
+
+    public function getTodaysProducedProductsWithStock()
+    {
+        $today = date('Y-m-d');
+        return $this->select('produk.id_produk, produk.nama_produk, produk.harga, produk.stok')
+            ->join('produk', 'produk.id_produk = log_produksi.id_produk')
+            ->where('DATE(log_produksi.tgl_produksi)', $today)
+            ->groupBy('produk.id_produk, produk.nama_produk, produk.harga, produk.stok')
+            ->findAll();
+    }
 }

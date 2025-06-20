@@ -32,6 +32,36 @@ class BuatTabelBahanBaku extends Migration
         ]);
         $this->forge->addKey('id_bahan', true);
         $this->forge->createTable('bahan_baku');
+
+        $data = [
+            [
+                'nama_bahan' => 'Tepung Terigu',
+                'harga_beli' => 13000,
+                'satuan' => 'Kg'
+            ],
+            [
+                'nama_bahan' => 'Gula',
+                'harga_beli' => 10000,
+                'satuan' => 'Kg'
+            ],
+            [
+                'nama_bahan' => 'Telur',
+                'harga_beli' => 2000,
+                'satuan' => 'butir'
+            ],
+            [
+                'nama_bahan' => 'Margarin',
+                'harga_beli' => 3000,
+                'satuan' => 'gram'
+            ],
+            [
+                'nama_bahan' => 'Cokelat',
+                'harga_beli' => 30000,
+                'satuan' => 'Kg'
+            ]
+        ];
+
+        $this->db->table('bahan_baku')->insertBatch($data);
     }
 
     public function down()

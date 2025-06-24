@@ -43,13 +43,6 @@ class Produk extends BaseController
                     'integer' => 'Harga harus berupa angka bulat.'
                 ]
             ],
-            'stok' => [
-                'rules' => 'required|integer',
-                'errors' => [
-                    'required' => 'Stok harus diisi.',
-                    'integer' => 'Stok harus berupa angka bulat.'
-                ]
-            ]
         ];
 
         if (!$this->validate($rules)) {
@@ -60,7 +53,7 @@ class Produk extends BaseController
         $data = array(
             'nama_produk' => $this->request->getPost('nama_produk'),
             'harga' => $this->request->getPost('harga'),
-            'stok' => $this->request->getPost('stok'),
+            'stok' => 0,
         );
         $simpan = $this->produkModel->insertProduk($data);
         if ($simpan) {

@@ -49,6 +49,13 @@ class BahanBaku extends BaseController
                     'required' => 'Satuan harus diisi.',
                     'max_length' => 'Satuan terlalu panjang (maksimal 50 karakter).'
                 ]
+            ],
+            'jenis' => [
+                'rules' => 'required|in_list[utama,toping,varian]',
+                'errors' => [
+                    'required' => 'Jenis bahan harus dipilih.',
+                    'in_list' => 'Jenis bahan tidak valid.'
+                ]
             ]
         ];
 
@@ -57,11 +64,12 @@ class BahanBaku extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $data = array(
+        $data = [
             'nama_bahan' => $this->request->getPost('nama_bahan'),
             'harga_beli' => $this->request->getPost('harga_beli'),
             'satuan' => $this->request->getPost('satuan'),
-        );
+            'jenis' => $this->request->getPost('jenis'),
+        ];
         $simpan = $this->bahanBakuModel->insertBahanBaku($data);
         if ($simpan) {
             session()->setFlashdata('success', 'Berhasil Menambahkan Data Bahan Baku');
@@ -103,6 +111,13 @@ class BahanBaku extends BaseController
                     'required' => 'Satuan harus diisi.',
                     'max_length' => 'Satuan terlalu panjang (maksimal 50 karakter).'
                 ]
+            ],
+            'jenis' => [
+                'rules' => 'required|in_list[utama,toping,varian]',
+                'errors' => [
+                    'required' => 'Jenis bahan harus dipilih.',
+                    'in_list' => 'Jenis bahan tidak valid.'
+                ]
             ]
         ];
 
@@ -111,11 +126,12 @@ class BahanBaku extends BaseController
             return redirect()->back()->withInput();
         }
 
-        $data = array(
+        $data = [
             'nama_bahan' => $this->request->getPost('nama_bahan'),
             'harga_beli' => $this->request->getPost('harga_beli'),
             'satuan' => $this->request->getPost('satuan'),
-        );
+            'jenis' => $this->request->getPost('jenis'),
+        ];
         $simpan = $this->bahanBakuModel->updateBahanBaku($data, $id);
         if ($simpan) {
             session()->setFlashdata('warning', 'Berhasil Edit Data Bahan Baku');

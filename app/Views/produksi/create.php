@@ -49,6 +49,15 @@
                     <div id="variant-container">
                     </div>
 
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <h6>Bahan Topping (Opsional)</h6>
+                        <button type="button" id="add-topping-btn" class="btn btn-sm btn-info"><i class="fa fa-plus"></i> Tambah Topping</button>
+                    </div>
+                    <hr>
+                    <div id="topping-container">
+                    </div>
+
+
                     <h6 class="mt-4">Informasi Produksi</h6>
                     <hr>
                     <div class="form-row">
@@ -78,7 +87,7 @@
             <label>Nama Varian</label>
             <select class="form-control" name="variants[nama][]">
                 <option value="">Pilih Varian...</option>
-                <?php foreach ($pilihan_varian as $varian): ?>
+                <?php foreach ($pilihan_varian as $varian) : ?>
                     <option value="<?= $varian['nama_bahan']; ?>"><?= $varian['nama_bahan']; ?></option>
                 <?php endforeach; ?>
             </select>
@@ -89,6 +98,27 @@
         </div>
         <div class="col-md-2">
             <button type="button" class="btn btn-danger btn-block remove-variant-btn">Hapus</button>
+        </div>
+    </div>
+</div>
+
+<div id="topping-template" style="display: none;">
+    <div class="form-row align-items-end topping-row mb-3">
+        <div class="col-md-6">
+            <label>Nama Topping</label>
+            <select class="form-control" name="toppings[nama][]">
+                <option value="">Pilih Topping...</option>
+                <?php foreach ($pilihan_topping as $topping) : ?>
+                    <option value="<?= $topping['nama_bahan']; ?>"><?= $topping['nama_bahan']; ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label>Jumlah Topping (gram)</label>
+            <input type="number" step="any" class="form-control" name="toppings[jumlah][]" placeholder="Contoh: 100">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-danger btn-block remove-topping-btn">Hapus</button>
         </div>
     </div>
 </div>
@@ -109,6 +139,21 @@
         variantContainer.addEventListener('click', function(e) {
             if (e.target && e.target.classList.contains('remove-variant-btn')) {
                 e.target.closest('.variant-row').remove();
+            }
+        });
+
+        const addToppingBtn = document.getElementById('add-topping-btn');
+        const toppingContainer = document.getElementById('topping-container');
+        const toppingTemplate = document.getElementById('topping-template');
+
+        addToppingBtn.addEventListener('click', function() {
+            const newToppingRow = toppingTemplate.firstElementChild.cloneNode(true);
+            toppingContainer.appendChild(newToppingRow);
+        });
+
+        toppingContainer.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-topping-btn')) {
+                e.target.closest('.topping-row').remove();
             }
         });
     });

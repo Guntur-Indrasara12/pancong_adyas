@@ -36,31 +36,34 @@ class produksi extends BaseController
 
     public function create()
     {
-        $allBahan = $this->bahanBakuModel->findAll();
-        $bahanUtama = ['Tepung Terigu', 'Gula', 'Telur', 'Margarin'];
-        $pilihanVarian = array_filter($allBahan, function ($bahan) use ($bahanUtama) {
-            return !in_array($bahan['nama_bahan'], $bahanUtama);
-        });
+        $pilihanVarian = $this->bahanBakuModel->where('jenis', 'varian')->findAll();
+        $pilihanTopping = $this->bahanBakuModel->where('jenis', 'toping')->findAll();
 
         $data = [
             'cabang' => $this->cabangModel->getCabang(),
             'pilihan_varian' => $pilihanVarian,
+            'pilihan_topping' => $pilihanTopping,
             'validation' => \Config\Services::validation()
         ];
+
         return view('produksi/create', $data);
     }
 
 
+
     public function process()
     {
+        // 1. Aturan validasi diperbarui untuk toppings
         $rules = [
-            'tepung'    => 'required|numeric',
-            'gula'      => 'required|numeric',
-            'telur'     => 'required|numeric',
-            'margarin'  => 'required|numeric',
-            'id_cabang' => 'required|integer',
-            'variants.*.nama' => 'permit_empty|alpha_numeric_space',
-            'variants.*.jumlah' => 'permit_empty|numeric'
+            'tepung'      => 'required|numeric',
+            'gula'        => 'required|numeric',
+            'telur'       => 'required|numeric',
+            'margarin'    => 'required|numeric',
+            'id_cabang'   => 'required|integer',
+            'variants.*.nama'   => 'permit_empty|alpha_numeric_space',
+            'variants.*.jumlah' => 'permit_empty|numeric',
+            'toppings.*.nama'   => 'permit_empty|alpha_numeric_space', // Aturan untuk topping
+            'toppings.*.jumlah' => 'permit_empty|numeric' // Aturan untuk topping
         ];
 
         if (!$this->validate($rules)) {
@@ -88,20 +91,24 @@ class produksi extends BaseController
 
             $totalModalProduksi = 0;
 
+            // Hitung modal bahan utama
             foreach ($bahanUtamaDigunakan as $nama => $jumlah) {
                 if (!isset($daftarHargaBahan[$nama])) {
                     throw new \Exception("Master bahan '$nama' tidak ditemukan.");
                 }
 
                 if ($nama === 'Margarin') {
-                    $jumlah /= 1000;
+                    $jumlah /= 1000; // konversi gram ke kg
                 }
 
                 $totalModalProduksi += $daftarHargaBahan[$nama] * $jumlah;
             }
 
+            // Proses Varian
             $variants = $postData['variants'] ?? [];
+            $toppings = $postData['toppings'] ?? [];
             $listProdukVarian = [];
+            $listProdukTopping = [];
             $totalJumlahVarianPcs = 0;
 
             if (!empty($variants['nama'])) {
@@ -110,8 +117,10 @@ class produksi extends BaseController
                     if (!empty($namaVarian) && $jumlahVarian > 0) {
                         if (!isset($daftarHargaBahan[$namaVarian])) throw new \Exception("Master bahan varian '$namaVarian' tidak ditemukan.");
 
+                        // Tambah modal dari varian
                         $totalModalProduksi += ($daftarHargaBahan[$namaVarian] / 1000) * $jumlahVarian;
 
+                        // Hitung jumlah pcs dari varian dan kurangi dari total output
                         $jumlahPcs = floor($jumlahVarian / $varianPerGram);
                         $totalJumlahVarianPcs += $jumlahPcs;
 
@@ -120,6 +129,22 @@ class produksi extends BaseController
                 }
             }
 
+            if (!empty($toppings['nama'])) {
+                foreach ($toppings['nama'] as $index => $namaTopping) {
+                    $jumlahTopping = $toppings['jumlah'][$index] ?? 0;
+                    if (!empty($namaTopping) && $jumlahTopping > 0) {
+                        if (!isset($daftarHargaBahan[$namaTopping])) throw new \Exception("Master bahan topping '$namaTopping' tidak ditemukan.");
+
+                        $totalModalProduksi += ($daftarHargaBahan[$namaTopping] / 1000) * $jumlahTopping;
+
+                        // ### FIX: Use the loop variables, not the entire array ###
+                        $listProdukTopping[] = ['nama' => 'Topping ' . ucfirst(strtolower($namaTopping)), 'jumlah' => $jumlahTopping];
+                    }
+                }
+            }
+
+
+            // Hitung total output dan produk original
             $faktorPengali = ($postData['tepung']) / $resepDasar['Tepung Terigu'];
             $totalOutput = $faktorPengali * $hasilPerResep;
 
@@ -129,13 +154,15 @@ class produksi extends BaseController
 
             $produkOriginal = ['nama' => 'Pancung original', 'jumlah' => $totalOutput - $totalJumlahVarianPcs];
 
+            // 3. Simpan Log Produksi & Update Stok
+            // Total modal sudah termasuk bahan utama, varian, dan topping
             if ($produkOriginal['jumlah'] > 0) {
                 $idOriginal = $this->produkModel->findOrCreateByName($produkOriginal['nama']);
                 $this->produkModel->increaseStock($idOriginal, $produkOriginal['jumlah']);
                 $this->produksiModel->insert([
                     'id_produk'     => $idOriginal,
                     'jumlah_hasil'  => $produkOriginal['jumlah'],
-                    'total_modal'   => $totalModalProduksi,
+                    'total_modal'   => $totalModalProduksi, // Modal ini sudah mencakup semuanya
                     'id_cabang' => $postData['id_cabang'],
                     'tgl_produksi'  => date('Y-m-d H:i:s')
                 ]);
@@ -148,7 +175,21 @@ class produksi extends BaseController
                     $this->produksiModel->insert([
                         'id_produk'     => $idVarian,
                         'jumlah_hasil'  => $varian['jumlah'],
-                        'total_modal'   => 0,
+                        'total_modal'   => 0, // Modal sudah dicatat di produk original
+                        'id_cabang' => $postData['id_cabang'],
+                        'tgl_produksi'  => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
+
+            foreach ($listProdukTopping as $topping) {
+                if ($topping['jumlah'] > 0) {
+                    $idTopping = $this->produkModel->findOrCreateByName($topping['nama']);
+                    $this->produkModel->increaseStock($idTopping, $topping['jumlah']);
+                    $this->produksiModel->insert([
+                        'id_produk'     => $idTopping,
+                        'jumlah_hasil'  => $topping['jumlah'],
+                        'total_modal'   => 0, // Modal sudah dicatat di produk original
                         'id_cabang' => $postData['id_cabang'],
                         'tgl_produksi'  => date('Y-m-d H:i:s')
                     ]);

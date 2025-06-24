@@ -52,7 +52,7 @@
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <!-- <div class="col-md-4 mb-3">
                             <label for="stok">Stok</label>
                             <input type="number" class="form-control" name="stok" id="stok"
                                 placeholder="Stok" value="<?= old('stok'); ?>" required min="0">
@@ -65,7 +65,7 @@
                                     Stok harus berupa angka bulat.
                                 </div>
                             <?php endif; ?>
-                        </div>
+                        </div> -->
                     </div>
                     <button class="btn btn-primary" type="submit">Simpan</button>
                 </form>

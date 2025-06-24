@@ -13,23 +13,29 @@ class BuatTabelBahanBaku extends Migration
                 'type' => 'INT',
                 'constraint' => 5,
                 'unsigned' => true,
-                'auto_increment' => true
+                'auto_increment' => true,
             ],
             'nama_bahan' => [
                 'type' => 'VARCHAR',
                 'constraint' => '255',
-                'unique' => true
+                'unique' => true,
             ],
             'harga_beli' => [
                 'type' => 'INT',
                 'constraint' => 11,
-                'default' => 0
+                'default' => 0,
             ],
             'satuan' => [
                 'type' => 'VARCHAR',
-                'constraint' => '50'
+                'constraint' => '50',
+            ],
+            'jenis' => [
+                'type' => 'ENUM',
+                'constraint' => ['utama', 'toping', 'varian'],
+                'default' => 'utama',
             ],
         ]);
+
         $this->forge->addKey('id_bahan', true);
         $this->forge->createTable('bahan_baku');
 
@@ -37,22 +43,26 @@ class BuatTabelBahanBaku extends Migration
             [
                 'nama_bahan' => 'Tepung Terigu',
                 'harga_beli' => 13000,
-                'satuan' => 'Kg'
+                'satuan' => 'Kg',
+                'jenis' => 'utama'
             ],
             [
                 'nama_bahan' => 'Gula',
                 'harga_beli' => 10000,
-                'satuan' => 'Kg'
+                'satuan' => 'Kg',
+                'jenis' => 'utama'
             ],
             [
                 'nama_bahan' => 'Telur',
                 'harga_beli' => 2000,
-                'satuan' => 'butir'
+                'satuan' => 'butir',
+                'jenis' => 'utama'
             ],
             [
                 'nama_bahan' => 'Margarin',
                 'harga_beli' => 3000,
-                'satuan' => 'gram'
+                'satuan' => 'gram',
+                'jenis' => 'utama'
             ],
         ];
 

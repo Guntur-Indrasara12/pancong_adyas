@@ -77,7 +77,7 @@
                                             <td><?php echo $key + 1; ?></td>
                                             <td><?php echo $row['nama_bahan']; ?></td>
                                             <td>Rp <?php echo number_format($row['harga_beli'], 0, ',', '.'); ?></td>
-                                            <td>-</td>
+                                            <td><?php echo ucfirst($row['jenis']); ?></td>
                                             <td><?php echo $row['satuan']; ?></td>
                                             <td>
                                                 <div class="btn-group">

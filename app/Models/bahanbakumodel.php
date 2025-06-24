@@ -4,11 +4,11 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class bahanbakumodel extends Model
+class BahanBakuModel extends Model
 {
     protected $table            = 'bahan_baku';
     protected $primaryKey       = 'id_bahan';
-    protected $allowedFields    = ['nama_bahan', 'harga_beli', 'satuan'];
+    protected $allowedFields    = ['nama_bahan', 'harga_beli', 'satuan', 'jenis'];
 
     protected $useTimestamps = false;
     protected $useSoftDeletes = false;

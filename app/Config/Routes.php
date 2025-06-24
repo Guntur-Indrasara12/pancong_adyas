@@ -57,7 +57,7 @@ $routes->get('/bahanbaku', 'BahanBaku::index');
 $routes->get('/bahanbaku/create', 'BahanBaku::create');
 $routes->get('/bahanbaku/edit/(:num)', 'BahanBaku::edit/$1');
 $routes->post('/bahanbaku/process', 'BahanBaku::process');
-$routes->post('/bahanbaku/edit/process', 'BahanBaku::edit_process');
+$routes->post('/bahanbaku/edit_process', 'BahanBaku::edit_process');
 $routes->get('/bahanbaku/delete/(:num)', 'BahanBaku::delete/$1');
 
 

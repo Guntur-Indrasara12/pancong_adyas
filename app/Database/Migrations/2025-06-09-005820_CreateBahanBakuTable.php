@@ -54,11 +54,6 @@ class BuatTabelBahanBaku extends Migration
                 'harga_beli' => 3000,
                 'satuan' => 'gram'
             ],
-            [
-                'nama_bahan' => 'Cokelat',
-                'harga_beli' => 30000,
-                'satuan' => 'Kg'
-            ]
         ];
 
         $this->db->table('bahan_baku')->insertBatch($data);

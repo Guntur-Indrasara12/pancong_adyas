@@ -65,3 +65,8 @@ $routes->get('/bahanbaku/delete/(:num)', 'BahanBaku::delete/$1');
 $routes->get('/penjualan', 'Penjualan::index');
 $routes->get('/penjualan/create', 'Penjualan::create');
 $routes->post('/penjualan/process', 'Penjualan::process');
+
+
+//laporan
+$routes->get('/penjualan/report', 'laporan::index');
+$routes->get('/laporan/penjualan/download_pdf', 'laporan::downloadPdf');

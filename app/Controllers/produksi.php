@@ -85,9 +85,17 @@ class produksi extends BaseController
                 'Telur' => $postData['telur'],
                 'Margarin' => $postData['margarin'],
             ];
+
             $totalModalProduksi = 0;
+
             foreach ($bahanUtamaDigunakan as $nama => $jumlah) {
-                if (!isset($daftarHargaBahan[$nama])) throw new \Exception("Master bahan '$nama' tidak ditemukan.");
+                if (!isset($daftarHargaBahan[$nama])) {
+                    throw new \Exception("Master bahan '$nama' tidak ditemukan.");
+                }
+
+                if ($nama === 'Margarin') {
+                    $jumlah /= 1000;
+                }
 
                 $totalModalProduksi += $daftarHargaBahan[$nama] * $jumlah;
             }

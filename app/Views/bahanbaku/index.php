@@ -66,6 +66,7 @@
                                         <th class="text-center">No</th>
                                         <th class="text-center">Nama Bahan</th>
                                         <th class="text-center">Harga Beli</th>
+                                        <th class="text-center">Jenis</th>
                                         <th class="text-center">Satuan</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
@@ -76,6 +77,7 @@
                                             <td><?php echo $key + 1; ?></td>
                                             <td><?php echo $row['nama_bahan']; ?></td>
                                             <td>Rp <?php echo number_format($row['harga_beli'], 0, ',', '.'); ?></td>
+                                            <td>-</td>
                                             <td><?php echo $row['satuan']; ?></td>
                                             <td>
                                                 <div class="btn-group">

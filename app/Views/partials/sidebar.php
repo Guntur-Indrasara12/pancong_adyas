@@ -54,7 +54,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="<?php echo base_url('laporan'); ?>" class="<?php echo (strpos(current_url(), 'laporan') !== false) ? 'mm-active' : ''; ?>">
+                    <a href="<?php echo base_url('/penjualan/report'); ?>" class="<?php echo (strpos(current_url(), 'laporan') !== false) ? 'mm-active' : ''; ?>">
                         <i class="metismenu-icon pe-7s-news-paper"></i> Laporan
                     </a>
                 </li>

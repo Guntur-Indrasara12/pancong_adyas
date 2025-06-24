@@ -41,4 +41,16 @@ class produksimodel extends Model
             ->groupBy('produk.id_produk, produk.nama_produk, produk.harga, produk.stok')
             ->findAll();
     }
+
+    public function getProductionSummaryByCabang($startDate = null, $endDate = null)
+    {
+        $today = date('Y-m-d');
+        $builder = $this->select('cabang.nama_cabang, SUM(log_produksi.jumlah_hasil) as total_produksi_pcs, SUM(log_produksi.total_modal) as total_modal_produksi')
+            ->join('cabang', 'cabang.id_cabang = log_produksi.id_cabang')
+            ->where('DATE(log_produksi.tgl_produksi)', $today)
+            ->groupBy('cabang.nama_cabang')
+            ->orderBy('cabang.nama_cabang', 'ASC');
+
+        return $builder->findAll();
+    }
 }

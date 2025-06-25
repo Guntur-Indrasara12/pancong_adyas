@@ -69,4 +69,11 @@ class produkmodel extends Model
         }
         return false;
     }
+
+    public function getAvailableToppings()
+    {
+        return $this->where('stok >', 0)
+            ->like('nama_produk', 'Topping %')
+            ->findAll();
+    }
 }

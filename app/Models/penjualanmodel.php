@@ -45,44 +45,53 @@ class PenjualanModel extends Model
             ->findAll();
     }
 
-    public function getSalesSummaryByProduct()
+    // public function getSalesSummaryByProduct()
+    // {
+    //     return $this->select('produk.nama_produk, SUM(penjualan.jumlah_terjual) as total_jumlah, SUM(penjualan.total_harga) as total_pendapatan')
+    //         ->join('produk', 'produk.id_produk = penjualan.id_produk')
+    //         ->groupBy('produk.nama_produk')
+    //         ->findAll();
+    // }
+
+    public function getSalesSummaryByProduct($startDate, $endDate)
     {
         return $this->select('produk.nama_produk, SUM(penjualan.jumlah_terjual) as total_jumlah, SUM(penjualan.total_harga) as total_pendapatan')
             ->join('produk', 'produk.id_produk = penjualan.id_produk')
+            ->where('DATE(penjualan.tgl_penjualan) >=', $startDate)
+            ->where('DATE(penjualan.tgl_penjualan) <=', $endDate)
             ->groupBy('produk.nama_produk')
+            ->orderBy('total_pendapatan', 'DESC')
             ->findAll();
     }
 
-    public function getSalesSummaryByDate($startDate = null, $endDate = null)
-    {
-        $builder = $this->select('DATE(penjualan.tgl_penjualan) as tanggal, SUM(penjualan.total_harga) as total_pendapatan_harian, SUM(penjualan.jumlah_terjual) as total_terjual_harian')
-            ->groupBy('DATE(penjualan.tgl_penjualan)')
-            ->orderBy('tanggal', 'DESC');
-
-        if ($startDate && $endDate) {
-            $builder->where('DATE(penjualan.tgl_penjualan) >=', $startDate)
-                ->where('DATE(penjualan.tgl_penjualan) <=', $endDate);
-        } else {
-            $builder->where('DATE(penjualan.tgl_penjualan) >=', date('Y-m-d', strtotime('-30 days')));
-        }
-
-        return $builder->findAll();
-    }
-
-    public function getSalesSummaryByCabang($startDate = null, $endDate = null)
+    public function getSalesSummaryByCabang($startDate, $endDate)
     {
         $builder = $this->select('cabang.nama_cabang, SUM(penjualan.total_harga) as total_pendapatan_cabang, SUM(penjualan.jumlah_terjual) as total_terjual_cabang')
             ->join('cabang', 'cabang.id_cabang = penjualan.id_cabang', 'left')
             ->groupBy('cabang.nama_cabang')
-            ->orderBy('cabang.nama_cabang', 'ASC');
+            ->orderBy('total_pendapatan_cabang', 'DESC');
 
         if ($startDate && $endDate) {
             $builder->where('DATE(penjualan.tgl_penjualan) >=', $startDate)
                 ->where('DATE(penjualan.tgl_penjualan) <=', $endDate);
-        } else {
-            $builder->where('DATE(penjualan.tgl_penjualan) >=', date('Y-m-d', strtotime('-30 days')));
         }
 
         return $builder->findAll();
+    }
+
+    public function getTotalRevenueForPeriod($startDate, $endDate)
+    {
+        $result = $this->selectSum('total_harga', 'total_revenue')
+            ->where('DATE(tgl_penjualan) >=', $startDate)
+            ->where('DATE(tgl_penjualan) <=', $endDate)
+            ->get()
+            ->getRow();
+
+        return $result ? (float)$result->total_revenue : 0;
+    }
+
+    public function getTotalRevenueForDate($date)
+    {
+        return $this->getTotalRevenueForPeriod($date, $date);
     }
 }

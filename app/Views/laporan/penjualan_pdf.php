@@ -1,22 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Penjualan</title>
+    <title>Laporan Keuangan</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20mm;
-            font-size: 10pt;
+        @page {
+            margin: 25mm 20mm;
         }
 
-        h1,
-        h2,
-        h3 {
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 10pt;
+            color: #333;
+        }
+
+        .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 18pt;
+            color: #000;
+        }
+
+        .header h3 {
+            margin: 5px 0;
+            font-size: 12pt;
+            font-weight: normal;
+        }
+
+        .period-info {
+            text-align: center;
+            font-size: 11pt;
+            margin-bottom: 25px;
+        }
+
+        .summary-container {
+            width: 100%;
+            margin-bottom: 25px;
+            border-spacing: 10px;
+            border-collapse: separate;
+        }
+
+        .summary-box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            text-align: center;
+            width: 30%;
+            border-radius: 8px;
+        }
+
+        .summary-box .title {
+            font-size: 10pt;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .summary-box .value {
+            font-size: 14pt;
+            font-weight: bold;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-primary {
+            color: #007bff;
+        }
+
+        h2.section-title {
+            font-size: 14pt;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
         }
 
         table {
@@ -27,55 +97,100 @@
 
         th,
         td {
-            border: 1px solid #000;
-            padding: 8px;
+            border: 1px solid #ddd;
+            padding: 10px;
             text-align: left;
+            vertical-align: top;
         }
 
         th {
             background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 10pt;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
+        td {
+            font-size: 9.5pt;
         }
 
-        .filter-info {
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .text-center {
             text-align: center;
-            margin-bottom: 20px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .no-data {
+            text-align: center;
             font-style: italic;
+            color: #777;
+            padding: 20px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: -20mm;
+            left: 0;
+            right: 0;
+            height: 20mm;
+            text-align: center;
+            font-size: 8pt;
+            color: #888;
+        }
+
+        .footer .page-number:after {
+            content: counter(page);
         }
     </style>
 </head>
 
 <body>
+    <div class="footer">
+        Laporan dihasilkan pada <?= date('d F Y H:i:s'); ?> | Halaman <span class="page-number"></span>
+    </div>
+
     <div class="header">
-        <h1>Laporan Penjualan</h1>
+        <h1>Laporan Keuangan & Operasional</h1>
         <h3>Toko Roti Pancong Adyas</h3>
     </div>
 
-    <div class="filter-info">
-        <?php
-        $filter_text = 'Semua data';
-        if (!empty($start_date) && !empty($end_date)) {
-            $filter_text = 'Periode: ' . date('d F Y', strtotime($start_date)) . ' s/d ' . date('d F Y', strtotime($end_date));
-        } elseif (!empty($start_date)) {
-            $filter_text = 'Dari Tanggal: ' . date('d F Y', strtotime($start_date));
-        } elseif (!empty($end_date)) {
-            $filter_text = 'Sampai Tanggal: ' . date('d F Y', strtotime($end_date));
-        }
-        echo $filter_text;
-        ?>
+    <div class="period-info">
+        <strong>Periode Laporan:</strong>
+        <?= date('d F Y', strtotime($start_date)); ?> &mdash; <?= date('d F Y', strtotime($end_date)); ?>
     </div>
 
-    <h2>Ringkasan Penjualan Berdasarkan Produk</h2>
+    <table class="summary-container">
+        <tr>
+            <td class="summary-box">
+                <div class="title">Total Pendapatan</div>
+                <div class="value text-success">Rp <?= number_format($total_pendapatan, 0, ',', '.'); ?></div>
+            </td>
+            <td class="summary-box">
+                <div class="title">Total Modal</div>
+                <div class="value text-danger">Rp <?= number_format($total_modal, 0, ',', '.'); ?></div>
+            </td>
+            <td class="summary-box">
+                <div class="title">Estimasi Laba</div>
+                <div class="value text-primary">Rp <?= number_format($laba_periode, 0, ',', '.'); ?></div>
+            </td>
+        </tr>
+    </table>
+
+
+    <h2 class="section-title">Ringkasan Penjualan</h2>
+
+    <strong>Berdasarkan Produk</strong>
     <table>
         <thead>
             <tr>
                 <th>Produk</th>
-                <th>Total Terjual (Pcs)</th>
-                <th>Total Pendapatan</th>
+                <th class="text-center">Terjual (Pcs)</th>
+                <th class="text-right">Total Pendapatan</th>
             </tr>
         </thead>
         <tbody>
@@ -83,25 +198,25 @@
                 <?php foreach ($sales_by_product as $item): ?>
                     <tr>
                         <td><?= esc($item['nama_produk']); ?></td>
-                        <td><?= esc($item['total_jumlah']); ?></td>
-                        <td>Rp <?= number_format(esc($item['total_pendapatan']), 0, ',', '.'); ?></td>
+                        <td class="text-center"><?= esc($item['total_jumlah']); ?></td>
+                        <td class="text-right">Rp <?= number_format(esc($item['total_pendapatan']), 0, ',', '.'); ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="3" class="text-center">Tidak ada data penjualan produk.</td>
+                    <td colspan="3" class="no-data">Tidak ada data penjualan produk.</td>
                 </tr>
             <?php endif; ?>
         </tbody>
     </table>
 
-    <h2>Ringkasan Penjualan Berdasarkan Cabang</h2>
+    <strong>Berdasarkan Cabang</strong>
     <table>
         <thead>
             <tr>
                 <th>Cabang</th>
-                <th>Total Terjual (Pcs)</th>
-                <th>Total Pendapatan</th>
+                <th class="text-center">Terjual (Pcs)</th>
+                <th class="text-right">Total Pendapatan</th>
             </tr>
         </thead>
         <tbody>
@@ -109,39 +224,71 @@
                 <?php foreach ($sales_by_cabang as $item): ?>
                     <tr>
                         <td><?= esc($item['nama_cabang'] ?? 'Tidak Diketahui'); ?></td>
-                        <td><?= esc($item['total_terjual_cabang']); ?></td>
-                        <td>Rp <?= number_format(esc($item['total_pendapatan_cabang']), 0, ',', '.'); ?></td>
+                        <td class="text-center"><?= esc($item['total_terjual_cabang']); ?></td>
+                        <td class="text-right">Rp <?= number_format(esc($item['total_pendapatan_cabang']), 0, ',', '.'); ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="3" class="text-center">Tidak ada data penjualan per cabang.</td>
+                    <td colspan="3" class="no-data">Tidak ada data penjualan per cabang.</td>
                 </tr>
             <?php endif; ?>
         </tbody>
     </table>
 
-    <h2>Ringkasan Penjualan Per Tanggal</h2>
+    <h2 class="section-title">Ringkasan Produksi</h2>
+
+    <strong>Berdasarkan Cabang</strong>
     <table>
         <thead>
             <tr>
-                <th>Tanggal</th>
-                <th>Total Terjual (Pcs)</th>
-                <th>Total Pendapatan</th>
+                <th>Cabang</th>
+                <th class="text-center">Total Produksi (Pcs)</th>
+                <th class="text-right">Total Modal</th>
             </tr>
         </thead>
         <tbody>
-            <?php if (!empty($sales_by_date)): ?>
-                <?php foreach ($sales_by_date as $item): ?>
+            <?php if (!empty($production_summary)): ?>
+                <?php foreach ($production_summary as $item): ?>
                     <tr>
-                        <td><?= esc(date('d F Y', strtotime($item['tanggal']))); ?></td>
-                        <td><?= esc($item['total_terjual_harian']); ?></td>
-                        <td>Rp <?= number_format(esc($item['total_pendapatan_harian']), 0, ',', '.'); ?></td>
+                        <td><?= esc($item['nama_cabang']); ?></td>
+                        <td class="text-center"><?= esc($item['total_produksi_pcs']); ?></td>
+                        <td class="text-right">Rp <?= number_format(esc($item['total_modal_produksi']), 0, ',', '.'); ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="3" class="text-center">Tidak ada data penjualan untuk rentang tanggal ini.</td>
+                    <td colspan="3" class="no-data">Tidak ada ringkasan produksi.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
+    <strong>Log Produksi Rinci</strong>
+    <table>
+        <thead>
+            <tr>
+                <th>Waktu Produksi</th>
+                <th>Produk</th>
+                <th class="text-center">Jumlah</th>
+                <th class="text-right">Modal</th>
+                <th>Cabang</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($production_log)): ?>
+                <?php foreach ($production_log as $item): ?>
+                    <tr>
+                        <td><?= date('d M Y, H:i', strtotime($item['tgl_produksi'])); ?></td>
+                        <td><?= esc($item['nama_produk']); ?></td>
+                        <td class="text-center"><?= esc($item['jumlah_hasil']); ?> Pcs</td>
+                        <td class="text-right">Rp <?= number_format(esc($item['total_modal']), 0, ',', '.'); ?></td>
+                        <td><?= esc($item['nama_cabang']); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="5" class="no-data">Tidak ada data log produksi.</td>
                 </tr>
             <?php endif; ?>
         </tbody>

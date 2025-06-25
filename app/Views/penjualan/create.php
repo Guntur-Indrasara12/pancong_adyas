@@ -21,29 +21,53 @@
             <div class="card-body">
                 <h5 class="card-title">Tambah Penjualan</h5>
                 <br>
+
+                <?php if (session()->getFlashdata('error')) : ?>
+                    <div class="alert alert-danger">
+                        <?= session()->getFlashdata('error'); ?>
+                    </div>
+                <?php endif; ?>
+
                 <form class="needs-validation" action="<?= base_url('penjualan/process'); ?>" method="post" novalidate>
                     <?= csrf_field(); ?>
+
+                    <h6>Produk Utama</h6>
+                    <hr>
                     <div class="form-row">
                         <div class="col-md-6 mb-3">
                             <label for="id_produk">Pilih Produk (Produksi Hari Ini)</label>
                             <select class="form-control" name="id_produk" id="id_produk" required>
-                                <option value="">-- Pilih Produk (Produksi Hari Ini) --</option>
+                                <option value="">-- Pilih Produk --</option>
                                 <?php if (!empty($produk)): ?>
                                     <?php foreach ($produk as $p) : ?>
-                                        <option value="<?= $p['id_produk'] ?>" <?= (old('id_produk') == $p['id_produk']) ? 'selected' : '' ?>>
-                                            <?= $p['nama_produk'] ?> (Stok Tersedia: <?= $p['stok'] ?> - Harga Jual: Rp <?= number_format($p['harga'], 0, ',', '.') ?>)
-                                        </option>
+                                        <?php if (strpos(strtolower($p['nama_produk']), 'topping') === false) : ?>
+                                            <option value="<?= $p['id_produk'] ?>" <?= (old('id_produk') == $p['id_produk']) ? 'selected' : '' ?>>
+                                                <?= $p['nama_produk'] ?> (Stok: <?= $p['stok'] ?> - Harga: Rp <?= number_format($p['harga'], 0, ',', '.') ?>)
+                                            </option>
+                                        <?php endif; ?>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <option value="" disabled>Tidak ada produk yang diproduksi hari ini.</option>
+                                    <option value="" disabled>Tidak ada produk utama yang diproduksi hari ini.</option>
                                 <?php endif; ?>
                             </select>
-                            <?php if (session()->getFlashdata('error') && strpos(session()->getFlashdata('error'), 'id_produk') !== false) : ?>
-                                <div class="invalid-feedback d-block">
-                                    Pilih produk yang valid.
-                                </div>
-                            <?php endif; ?>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="jumlah_terjual">Jumlah Terjual</label>
+                            <input type="number" class="form-control" name="jumlah_terjual" id="jumlah_terjual" placeholder="Jumlah Terjual" value="<?= old('jumlah_terjual'); ?>" required min="1">
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <h6>Pilih Topping (Opsional)</h6>
+                        <button type="button" id="add-topping-btn" class="btn btn-sm btn-info"><i class="fa fa-plus"></i> Tambah Topping</button>
+                    </div>
+                    <hr>
+                    <div id="topping-container">
+                    </div>
+
+                    <h6 class="mt-4">Informasi Cabang</h6>
+                    <hr>
+                    <div class="form-row">
                         <div class="col-md-6 mb-3">
                             <label for="id_cabang">Pilih Cabang</label>
                             <select class="form-control" name="id_cabang" id="id_cabang" required>
@@ -58,34 +82,54 @@
                                     <option value="" disabled>Tidak ada cabang tersedia.</option>
                                 <?php endif; ?>
                             </select>
-                            <?php if (session()->getFlashdata('error') && strpos(session()->getFlashdata('error'), 'id_cabang') !== false) : ?>
-                                <div class="invalid-feedback d-block">
-                                    Pilih cabang yang valid.
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="col-md-6 mb-3">
-                            <label for="jumlah_terjual">Jumlah Terjual</label>
-                            <input type="number" class="form-control" name="jumlah_terjual" id="jumlah_terjual"
-                                placeholder="Jumlah Terjual" value="<?= old('jumlah_terjual'); ?>" required min="1">
-                            <?php if (session()->getFlashdata('error') && strpos(session()->getFlashdata('error'), 'jumlah_terjual') !== false) : ?>
-                                <div class="invalid-feedback d-block">
-                                    Jumlah terjual harus diisi dan lebih dari 0.
-                                </div>
-                            <?php elseif (session()->getFlashdata('error') && strpos(session()->getFlashdata('error'), 'Stok produk tidak mencukupi') !== false) : ?>
-                                <div class="invalid-feedback d-block">
-                                    <?= session()->getFlashdata('error'); ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" type="submit">Catat Penjualan</button>
+
+                    <button class="btn btn-primary mt-3" type="submit">Catat Penjualan</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<div id="topping-template" style="display: none;">
+    <div class="form-row align-items-end topping-row mb-3">
+        <div class="col-md-10">
+            <label>Nama Topping</label>
+            <select class="form-control" name="toppings[id_produk][]">
+                <option value="">Pilih Topping...</option>
+                <?php if (!empty($toppings)): ?>
+                    <?php foreach ($toppings as $topping) : ?>
+                        <option value="<?= $topping['id_produk']; ?>">
+                            <?= $topping['nama_produk']; ?> (Stok: <?= $topping['stok']; ?> - Harga: Rp <?= number_format($topping['harga'], 0, ',', '.') ?>)
+                        </option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+            <input type="hidden" name="toppings[jumlah][]" value="1">
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-danger btn-block remove-topping-btn">Hapus</button>
+        </div>
+    </div>
+</div>
 <?php echo view('partials/footer') ?>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addToppingBtn = document.getElementById('add-topping-btn');
+        const toppingContainer = document.getElementById('topping-container');
+        const toppingTemplate = document.getElementById('topping-template');
+
+        addToppingBtn.addEventListener('click', function() {
+            const newToppingRow = toppingTemplate.firstElementChild.cloneNode(true);
+            toppingContainer.appendChild(newToppingRow);
+        });
+
+        toppingContainer.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-topping-btn')) {
+                e.target.closest('.topping-row').remove();
+            }
+        });
+    });
+</script>

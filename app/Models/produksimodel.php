@@ -9,7 +9,8 @@ class produksimodel extends Model
     protected $table            = 'log_produksi';
     protected $primaryKey       = 'id_log';
     protected $allowedFields    = ['id_produk', 'jumlah_hasil', 'total_modal', 'id_cabang', 'tgl_produksi'];
-
+    protected $allowCallbacks = true;
+    protected $afterInsert    = ['createProduksiJurnal'];
     // public function getProductionHistory()
     // {
     //     return $this->db->table('log_produksi')
@@ -32,15 +33,15 @@ class produksimodel extends Model
             ->get()->getResultArray();
     }
 
-    // public function getTodaysProducedProductsWithStock()
-    // {
-    //     $today = date('Y-m-d');
-    //     return $this->select('produk.id_produk, produk.nama_produk, produk.harga, produk.stok')
-    //         ->join('produk', 'produk.id_produk = log_produksi.id_produk')
-    //         ->where('DATE(log_produksi.tgl_produksi)', $today)
-    //         ->groupBy('produk.id_produk, produk.nama_produk, produk.harga, produk.stok')
-    //         ->findAll();
-    // }
+    public function getTodaysProducedProductsWithStock()
+    {
+        $today = date('Y-m-d');
+        return $this->select('produk.id_produk, produk.nama_produk, produk.harga, produk.stok')
+            ->join('produk', 'produk.id_produk = log_produksi.id_produk')
+            ->where('DATE(log_produksi.tgl_produksi)', $today)
+            ->groupBy('produk.id_produk, produk.nama_produk, produk.harga, produk.stok')
+            ->findAll();
+    }
 
     public function getProductionHistory($startDate, $endDate)
     {
@@ -80,5 +81,55 @@ class produksimodel extends Model
     public function getTotalModalForDate($date)
     {
         return $this->getTotalModalForPeriod($date, $date);
+    }
+
+    protected function createProduksiJurnal(array $data)
+    {
+        if (!isset($data['id']) || !isset($data['data'])) {
+            return $data;
+        }
+
+        $produksiData = $data['data'];
+        $id_log = $data['id'];
+
+        $jurnalModel = new \App\Models\JurnalModel();
+        $akunModel = new \App\Models\AkunModel();
+
+        // Cari ID Akun Beban Pokok Produksi dan Kas
+        $akunBPP = $akunModel->where('kode_akun', '5-1100')->first();
+        $akunKas = $akunModel->where('kode_akun', '1-1100')->first();
+
+        if ($akunBPP && $akunKas) {
+            $totalModal = $produksiData['total_modal'];
+            $tglJurnal = $produksiData['tgl_produksi'] ?? date('Y-m-d H:i:s');
+
+            // Entri Jurnal
+            $jurnalEntries = [
+                // [DEBIT] Beban Pokok Produksi bertambah
+                [
+                    'id_akun'    => $akunBPP['id_akun'],
+                    'tgl_jurnal' => $tglJurnal,
+                    'debit'      => $totalModal,
+                    'kredit'     => 0,
+                    'deskripsi'  => 'Biaya modal untuk produksi ID: ' . $id_log,
+                    'ref_id'     => $id_log,
+                    'ref_table'  => 'log_produksi'
+                ],
+                // [KREDIT] Kas berkurang (asumsi modal adalah uang tunai)
+                [
+                    'id_akun'    => $akunKas['id_akun'],
+                    'tgl_jurnal' => $tglJurnal,
+                    'debit'      => 0,
+                    'kredit'     => $totalModal,
+                    'deskripsi'  => 'Biaya modal untuk produksi ID: ' . $id_log,
+                    'ref_id'     => $id_log,
+                    'ref_table'  => 'log_produksi'
+                ]
+            ];
+
+            $jurnalModel->insertBatch($jurnalEntries);
+        }
+
+        return $data;
     }
 }

@@ -28,13 +28,14 @@ class PenjualanModel extends Model
 
     protected $allowCallbacks = true;
     protected $beforeInsert   = [];
-    protected $afterInsert    = [];
+    // protected $afterInsert    = [];
     protected $beforeUpdate   = [];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+    protected $afterInsert    = ['createPenjualanJurnal'];
 
     public function getPenjualan()
     {
@@ -93,5 +94,51 @@ class PenjualanModel extends Model
     public function getTotalRevenueForDate($date)
     {
         return $this->getTotalRevenueForPeriod($date, $date);
+    }
+
+    protected function createPenjualanJurnal(array $data)
+    {
+        if (!isset($data['id']) || !isset($data['data'])) {
+            return $data;
+        }
+
+        $penjualanData = $data['data'];
+        $id_penjualan = $data['id'];
+
+        $jurnalModel = new \App\Models\JurnalModel();
+        $akunModel = new \App\Models\AkunModel();
+
+        $akunKas = $akunModel->where('kode_akun', '1-1100')->first();
+        $akunPendapatan = $akunModel->where('kode_akun', '4-1100')->first();
+
+        if ($akunKas && $akunPendapatan) {
+            $totalHarga = $penjualanData['total_harga'];
+            $tglJurnal = $penjualanData['tgl_penjualan'] ?? date('Y-m-d H:i:s');
+
+            $jurnalEntries = [
+                [
+                    'id_akun'    => $akunKas['id_akun'],
+                    'tgl_jurnal' => $tglJurnal,
+                    'debit'      => $totalHarga,
+                    'kredit'     => 0,
+                    'deskripsi'  => 'Pendapatan dari penjualan ID: ' . $id_penjualan,
+                    'ref_id'     => $id_penjualan,
+                    'ref_table'  => 'penjualan'
+                ],
+                [
+                    'id_akun'    => $akunPendapatan['id_akun'],
+                    'tgl_jurnal' => $tglJurnal,
+                    'debit'      => 0,
+                    'kredit'     => $totalHarga,
+                    'deskripsi'  => 'Pendapatan dari penjualan ID: ' . $id_penjualan,
+                    'ref_id'     => $id_penjualan,
+                    'ref_table'  => 'penjualan'
+                ]
+            ];
+
+            $jurnalModel->insertBatch($jurnalEntries);
+        }
+
+        return $data;
     }
 }

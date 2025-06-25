@@ -70,3 +70,14 @@ $routes->post('/penjualan/process', 'Penjualan::process');
 //laporan
 $routes->get('/penjualan/report', 'laporan::index');
 $routes->get('/laporan/penjualan/download_pdf', 'laporan::downloadPdf');
+$routes->get('/jurnal', 'LaporanKeuangan::jurnal');
+$routes->get('/buku-besar', 'LaporanKeuangan::bukuBesar');
+$routes->get('/neraca-saldo', 'LaporanKeuangan::neracaSaldo');
+
+
+$routes->get('/akun', 'akun::index');
+$routes->get('/akun/new', 'akun::new');
+$routes->post('/akun/create', 'akun::create');
+$routes->get('/akun/edit/(:num)', 'akun::edit/$1');
+$routes->post('/akun/update/(:num)', 'akun::update/$1');
+$routes->delete('/akun/delete/(:num)', 'akun::delete/$1');

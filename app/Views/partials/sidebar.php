@@ -23,6 +23,11 @@
                 </li>
                 <li class="app-sidebar__heading">Master</li>
                 <li>
+                    <a href="<?php echo base_url('akun'); ?>" class="<?php echo (strpos(current_url(), 'cabang') !== false) ? 'mm-active' : ''; ?>">
+                        <i class="metismenu-icon pe-7s-map-marker"></i> Data Akun
+                    </a>
+                </li>
+                <li>
                     <a href="<?php echo base_url('cabang'); ?>" class="<?php echo (strpos(current_url(), 'cabang') !== false) ? 'mm-active' : ''; ?>">
                         <i class="metismenu-icon pe-7s-map-marker"></i> Data Cabang
                     </a>
@@ -53,9 +58,25 @@
                         <i class="metismenu-icon pe-7s-cart"></i> Penjualan
                     </a>
                 </li>
+                <li class="app-sidebar__heading">Rekap</li>
                 <li>
                     <a href="<?php echo base_url('/penjualan/report'); ?>" class="<?php echo (strpos(current_url(), 'laporan') !== false) ? 'mm-active' : ''; ?>">
                         <i class="metismenu-icon pe-7s-news-paper"></i> Laporan
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo base_url('/buku-besar'); ?>" class="<?php echo (strpos(current_url(), 'laporan') !== false) ? 'mm-active' : ''; ?>">
+                        <i class="metismenu-icon pe-7s-news-paper"></i> Buku Besar
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo base_url('/neraca-saldo'); ?>" class="<?php echo (strpos(current_url(), 'laporan') !== false) ? 'mm-active' : ''; ?>">
+                        <i class="metismenu-icon pe-7s-news-paper"></i> Neraca saldo
+                    </a>
+                </li>
+                <li>
+                    <a href="<?php echo base_url('/jurnal'); ?>" class="<?php echo (strpos(current_url(), 'laporan') !== false) ? 'mm-active' : ''; ?>">
+                        <i class="metismenu-icon pe-7s-news-paper"></i> Jurnal
                     </a>
                 </li>
                 <li class="app-sidebar__heading">User</li>
